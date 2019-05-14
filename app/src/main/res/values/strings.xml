@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">ThoughtKeeper</string>
+    <string name="note_edit_text_hint">Type a note</string>
+    <string name="save_note_button">Save note</string>
+    <string name="default_note">No notes yet</string>
+</resources>
