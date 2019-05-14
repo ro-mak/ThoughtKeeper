@@ -5,13 +5,33 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".MainActivity">
+        tools:context=".view.MainActivity">
+
+    <EditText
+            android:id="@+id/note_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:hint="@string/note_edit_text_hint"
+            android:padding="10dp"
+    />
 
     <TextView
+            android:id="@+id/show_note_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Hello World!"
             android:layout_gravity="center_horizontal"
             android:padding="10dp"
     />
+
+    <Button
+            android:padding="10dp"
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/save_note_button"
+    />
+
 </LinearLayout>
