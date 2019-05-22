@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="note_title_margin">5dp</dimen>
+    <dimen name="note_text_margin">5dp</dimen>
+    <dimen name="note_card_padding">5dp</dimen>
+    <dimen name="add_note_fab_margin">10dp</dimen>
+</resources>
