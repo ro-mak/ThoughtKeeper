@@ -3,4 +3,6 @@
     <string name="note_edit_text_hint">Type a note</string>
     <string name="save_note_button">Save note</string>
     <string name="default_note">No notes yet</string>
+    <string name="note_activity_edit_text_hint">Text</string>
+    <string name="note_activity_title_hint">Title</string>
 </resources>

@@ -1,4 +1,4 @@
-package ru.makproductions.thoughtkeeper.view
+package ru.makproductions.thoughtkeeper.view.main
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -7,8 +7,8 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import ru.makproductions.thoughtkeeper.R
-import ru.makproductions.thoughtkeeper.model.entity.Note
-import ru.makproductions.thoughtkeeper.viewmodel.MainViewModel
+import ru.makproductions.thoughtkeeper.view.note.adapter.NotesAdapter
+import ru.makproductions.thoughtkeeper.viewmodel.main.MainViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,7 +24,12 @@ class MainActivity : AppCompatActivity() {
         adapter = NotesAdapter()
         notes_recycler_view.adapter = adapter
         viewModel.viewState()
-            .observe(this, Observer { viewstate -> viewstate?.let { adapter.notes = viewstate.notes } })
-        add_note_fab.setOnClickListener { viewModel.saveNotes(listOf(Note("Hello", "World"))) }
+            .observe(this, Observer { viewstate ->
+                viewstate?.let {
+                    adapter.notes = viewstate.notes
+                    adapter.notifyDataSetChanged()
+                }
+            })
+        add_note_fab.setOnClickListener { viewModel.addNote() }
     }
 }
