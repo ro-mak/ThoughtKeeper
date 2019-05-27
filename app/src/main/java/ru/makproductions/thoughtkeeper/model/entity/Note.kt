@@ -4,7 +4,18 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class Note(var title: String, var text: String, var color: Int = 0xFFFFFF.toInt()) : Parcelable
+data class Note(var id: String, var title: String, var text: String, var color: Int = 0xFFFFFF.toInt()) : Parcelable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Note
+
+        if (id != other.id) return false
+
+        return true
+    }
+}
 
 enum class Color {
     RED,

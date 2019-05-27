@@ -5,23 +5,25 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import ru.makproductions.thoughtkeeper.model.NoteRepo
 import ru.makproductions.thoughtkeeper.model.entity.Note
+import java.util.*
 
 class MainViewModel : ViewModel() {
-    val defaultNoteList: MutableList<Note>? = null
-    private val noteRepo: NoteRepo = NoteRepo(defaultNoteList)
     private val viewStateLiveData: MutableLiveData<MainViewState> = MutableLiveData()
 
     init {
-        viewStateLiveData.value = MainViewState(noteRepo.loadNotes())
+        NoteRepo.getNotesLiveData().observeForever({
+            viewStateLiveData.value = viewStateLiveData.value?.copy(notes = it) ?: MainViewState(it)
+        })
+
     }
 
     fun saveNotes(notes: MutableList<Note>) {
-        noteRepo.saveNotes(notes)
+        NoteRepo.saveNotes(notes)
     }
 
     fun viewState(): LiveData<MainViewState> = viewStateLiveData
     fun addNote() {
-        viewStateLiveData.value?.notes?.add(Note("New Note", "Place your text here"))
+        viewStateLiveData.value?.notes?.add(Note(UUID.randomUUID().toString(), "New Note", "Place your text here"))
         viewStateLiveData.postValue(MainViewState(viewStateLiveData.value?.notes))
     }
 
