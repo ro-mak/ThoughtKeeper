@@ -2,7 +2,9 @@ package ru.makproductions.thoughtkeeper.model
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import ru.makproductions.thoughtkeeper.model.entity.Color
 import ru.makproductions.thoughtkeeper.model.entity.Note
+import timber.log.Timber
 import java.util.*
 
 object NoteRepo {
@@ -19,6 +21,7 @@ object NoteRepo {
     }
 
     fun saveNote(note: Note) {
+        Timber.e("Save note " + note)
         addOrReplace(note)
         notesLiveData.value = notes
     }
@@ -39,9 +42,9 @@ object NoteRepo {
 
     fun loadNotes(): MutableList<Note> {
         val noteList = mutableListOf(
-            Note(UUID.randomUUID().toString(), "Note 1", "text 1"),
-            Note(UUID.randomUUID().toString(), "Note 2", "text 2"),
-            Note(UUID.randomUUID().toString(), "Note 3", "text 3")
+            Note(UUID.randomUUID().toString(), "Note 1", "text 1", Color.YELLOW),
+            Note(UUID.randomUUID().toString(), "Note 2", "text 2", Color.BLUE),
+            Note(UUID.randomUUID().toString(), "Note 3", "text 3", Color.VIOLET)
         )
         return noteList
     }

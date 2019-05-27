@@ -1,5 +1,6 @@
 package ru.makproductions.thoughtkeeper.view.note.adapter
 
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.note_adapter_item.view.*
 import ru.makproductions.thoughtkeeper.R
 import ru.makproductions.thoughtkeeper.model.entity.Note
+import ru.makproductions.thoughtkeeper.model.entity.toResource
 
 class NotesAdapter(val onItemClick: ((Note) -> Unit)? = null) : RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
 
@@ -32,6 +34,7 @@ class NotesAdapter(val onItemClick: ((Note) -> Unit)? = null) : RecyclerView.Ada
                 note_title.text = note.title
                 note_text.text = note.text
                 setOnClickListener({ onItemClick?.invoke(note) })
+                setBackgroundColor(ContextCompat.getColor(itemView.context, note.color.toResource()))
             }.let { }
 
         }

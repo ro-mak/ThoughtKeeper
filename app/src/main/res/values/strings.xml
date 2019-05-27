@@ -5,4 +5,13 @@
     <string name="default_note">No notes yet</string>
     <string name="note_activity_edit_text_hint">Text</string>
     <string name="note_activity_title_hint">Title</string>
+    <string-array name="colors">
+        <item>RED</item>
+        <item>WHITE</item>
+        <item>BLUE</item>
+        <item>PINK</item>
+        <item>VIOLET</item>
+        <item>YELLOW</item>
+        <item>GREEN</item>
+    </string-array>
 </resources>
