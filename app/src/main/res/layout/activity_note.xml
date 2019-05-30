@@ -26,7 +26,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     tools:text="Text"
-
                     />
         </android.support.v7.widget.Toolbar>
 

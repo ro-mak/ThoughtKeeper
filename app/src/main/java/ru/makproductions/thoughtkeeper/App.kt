@@ -1,9 +1,9 @@
 package ru.makproductions.thoughtkeeper
 
-import android.app.Application
+import android.support.multidex.MultiDexApplication
 import timber.log.Timber
 
-class App : Application() {
+class App : MultiDexApplication() {
 
     companion object {
 

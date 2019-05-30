@@ -54,7 +54,6 @@ class NoteActivity : AppCompatActivity() {
         setContentView(R.layout.activity_note)
         setSupportActionBar(note_activity_toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         viewModel = ViewModelProviders.of(this).get(NoteViewModel::class.java)
         note = intent.getParcelableExtra(EXTRA_NOTE)
         note_color_spinner.adapter =
