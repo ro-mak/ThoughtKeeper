@@ -12,7 +12,7 @@ import ru.makproductions.thoughtkeeper.model.entity.toResource
 
 class NotesAdapter(val onItemClick: ((Note) -> Unit)? = null) : RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
 
-    var notes: MutableList<Note>? = mutableListOf()
+    var notes: List<Note>? = listOf()
         set(value) {
             field = value
             notifyDataSetChanged()

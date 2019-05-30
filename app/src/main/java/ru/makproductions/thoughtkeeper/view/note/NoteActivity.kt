@@ -4,7 +4,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
@@ -17,29 +16,42 @@ import ru.makproductions.thoughtkeeper.model.entity.Color
 import ru.makproductions.thoughtkeeper.model.entity.Note
 import ru.makproductions.thoughtkeeper.model.entity.toColor
 import ru.makproductions.thoughtkeeper.model.entity.toResource
+import ru.makproductions.thoughtkeeper.view.base.BaseActivity
 import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewModel
+import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewState
 import java.util.*
 
-class NoteActivity : AppCompatActivity() {
+class NoteActivity : BaseActivity<Note?, NoteViewState>() {
+    override val layoutRes: Int
+        get() = R.layout.activity_note
+
+    override fun renderData(data: Note?) {
+        this.note = data
+        supportActionBar?.title = note?.title ?: getString(R.string.new_note_title)
+        initNote()
+    }
 
     companion object {
 
         private val EXTRA_NOTE = NoteActivity::class.java.name + "extra.NOTE"
 
-        fun start(context: Context, note: Note? = null) {
+        fun start(context: Context, noteId: String? = null) {
             context.startActivity(Intent(context, NoteActivity::class.java).apply {
-                note?.let {
+                noteId?.let {
                     putExtra(
                         EXTRA_NOTE,
-                        note
+                        noteId
                     )
                 }
             })
         }
     }
 
+    private var noteId: String? = null
     private var note: Note? = null
-    lateinit var viewModel: NoteViewModel
+    override val viewModel: NoteViewModel by lazy {
+        ViewModelProviders.of(this).get(NoteViewModel::class.java)
+    }
     val textWatcher: TextWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
             saveNote()
@@ -51,11 +63,13 @@ class NoteActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_note)
         setSupportActionBar(note_activity_toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        viewModel = ViewModelProviders.of(this).get(NoteViewModel::class.java)
-        note = intent.getParcelableExtra(EXTRA_NOTE)
+        noteId = intent.getStringExtra(EXTRA_NOTE)
+        noteId?.let { viewModel.loadNote(it) }
+            ?: let {
+                supportActionBar?.title = getString(R.string.new_note_title)
+            }
         note_color_spinner.adapter =
             ArrayAdapter<String>(this, R.layout.color_spinner_item, resources.getStringArray(R.array.colors))
         note_color_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -66,8 +80,6 @@ class NoteActivity : AppCompatActivity() {
 
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
-        supportActionBar?.title = if (note != null) note?.title else ""
-        initNote()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
@@ -106,7 +118,7 @@ class NoteActivity : AppCompatActivity() {
             text = note_activity_content_edit_text.text.toString(),
             color = note_color_spinner.selectedItem.toString().toColor()
         ) ?: createNewNote()
-        if (note != null) viewModel.saveNote(note!!)
+        note?.let { viewModel.saveNote(it) }
     }
 
 

@@ -1,37 +1,42 @@
 package ru.makproductions.thoughtkeeper.viewmodel.main
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.Observer
 import ru.makproductions.thoughtkeeper.model.NoteRepo
 import ru.makproductions.thoughtkeeper.model.entity.Note
+import ru.makproductions.thoughtkeeper.model.provider.NoteResult
+import ru.makproductions.thoughtkeeper.view.base.BaseViewModel
 import java.util.*
 
-class MainViewModel : ViewModel() {
-    private val viewStateLiveData: MutableLiveData<MainViewState> = MutableLiveData()
+class MainViewModel : BaseViewModel<List<Note>?, MainViewState>() {
+    private val notesObserver = object : Observer<NoteResult> {
+        override fun onChanged(t: NoteResult?) {
+            if (t == null) return
+            when (t) {
+                is NoteResult.NoteLoadSuccess<*> -> {
+                    viewStateLiveData.value = MainViewState(notes = t.data as? List<Note>)
+                }
+                is NoteResult.NoteLoadError -> {
+                    viewStateLiveData.value = MainViewState(error = t.throwable)
+                }
+            }
+        }
+    }
+
+    private val repositoryNotes = NoteRepo.getNotes()
 
     init {
-        NoteRepo.getNotesLiveData().observeForever({
-            viewStateLiveData.value = viewStateLiveData.value?.copy(notes = it) ?: MainViewState(it)
-        })
-
+        viewStateLiveData.value = MainViewState()
+        repositoryNotes.observeForever(notesObserver)
     }
 
-    fun saveNotes(notes: MutableList<Note>) {
-        NoteRepo.saveNotes(notes)
-    }
-
-    fun viewState(): LiveData<MainViewState> = viewStateLiveData
     fun addNote() {
-        viewStateLiveData.value?.notes?.add(Note(UUID.randomUUID().toString(), "New Note", "Place your text here"))
+        val noteList = viewStateLiveData.value?.notes as MutableList<Note>
+        noteList.add(Note(UUID.randomUUID().toString(), "New Note", "Place your text here"))
         viewStateLiveData.postValue(MainViewState(viewStateLiveData.value?.notes))
     }
 
     override fun onCleared() {
         super.onCleared()
-        viewStateLiveData.value?.let { value ->
-            value.notes?.let { notes -> saveNotes(notes) }
-        }
-
+        repositoryNotes.removeObserver(notesObserver)
     }
 }

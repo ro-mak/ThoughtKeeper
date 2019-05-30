@@ -5,7 +5,8 @@ import kotlinx.android.parcel.Parcelize
 import ru.makproductions.thoughtkeeper.R
 
 @Parcelize
-data class Note(var id: String, var title: String, var text: String, var color: Color = Color.WHITE) : Parcelable {
+data class Note(var id: String = "", var title: String = "", var text: String = "", var color: Color = Color.WHITE) :
+    Parcelable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
