@@ -12,10 +12,10 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_note.*
 import ru.makproductions.thoughtkeeper.R
+import ru.makproductions.thoughtkeeper.common.toColor
+import ru.makproductions.thoughtkeeper.common.toResource
 import ru.makproductions.thoughtkeeper.model.entity.Color
 import ru.makproductions.thoughtkeeper.model.entity.Note
-import ru.makproductions.thoughtkeeper.model.entity.toColor
-import ru.makproductions.thoughtkeeper.model.entity.toResource
 import ru.makproductions.thoughtkeeper.view.base.BaseActivity
 import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewModel
 import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewState

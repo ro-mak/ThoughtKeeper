@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.note_adapter_item.view.*
 import ru.makproductions.thoughtkeeper.R
+import ru.makproductions.thoughtkeeper.common.toResource
 import ru.makproductions.thoughtkeeper.model.entity.Note
-import ru.makproductions.thoughtkeeper.model.entity.toResource
 
 class NotesAdapter(val onItemClick: ((Note) -> Unit)? = null) : RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
 
