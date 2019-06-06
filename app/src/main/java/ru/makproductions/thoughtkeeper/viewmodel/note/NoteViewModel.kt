@@ -8,7 +8,7 @@ import ru.makproductions.thoughtkeeper.model.provider.NoteResult
 import ru.makproductions.thoughtkeeper.view.base.BaseViewModel
 import timber.log.Timber
 
-class NoteViewModel : BaseViewModel<NoteViewState.Data?, NoteViewState>() {
+class NoteViewModel : BaseViewModel<NoteViewState.Data, NoteViewState>() {
 
     private val noteObserver = object : Observer<NoteResult> {
         override fun onChanged(t: NoteResult?) {
@@ -35,6 +35,7 @@ class NoteViewModel : BaseViewModel<NoteViewState.Data?, NoteViewState>() {
     }
 
     private var repositoryNote: LiveData<NoteResult>? = null
+
     fun loadNote(noteId: String) {
         repositoryNote = NoteRepo.getNoteById(noteId)
         repositoryNote!!.observeForever(noteObserver)
@@ -42,7 +43,6 @@ class NoteViewModel : BaseViewModel<NoteViewState.Data?, NoteViewState>() {
 
     override fun onCleared() {
         Timber.e("OnCleared")
-        super.onCleared()
         pendingNote?.let { note -> NoteRepo.saveNote(note) }
         repositoryNote?.let { it.removeObserver(noteObserver) }
 

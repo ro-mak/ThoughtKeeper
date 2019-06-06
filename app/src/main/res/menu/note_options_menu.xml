@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
+        xmlns:tools="http://schemas.android.com/tools"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         >
@@ -8,5 +9,7 @@
             android:title="@string/delete_note_title"
             android:icon="@drawable/ic_delete_purple_24dp"
             app:showAsAction="always"
+            android:showAsAction="always"
+            tools:ignore="AppCompatResource"
             />
 </menu>

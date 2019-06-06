@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import com.github.ajalt.timberkt.Timber
 import kotlinx.android.synthetic.main.activity_note.*
 import org.jetbrains.anko.alert
 import ru.makproductions.thoughtkeeper.R
@@ -24,18 +25,7 @@ import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewModel
 import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewState
 import java.util.*
 
-class NoteActivity : BaseActivity<NoteViewState.Data?, NoteViewState>() {
-    override val layoutRes: Int
-        get() = R.layout.activity_note
-
-    override fun renderData(data: NoteViewState.Data?) {
-        this.note = data?.note
-        supportActionBar?.title = note?.title ?: getString(R.string.new_note_title)
-        initNote()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?) =
-        MenuInflater(this).inflate(R.menu.note_options_menu, menu).let { true }
+class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
 
     companion object {
 
@@ -58,9 +48,12 @@ class NoteActivity : BaseActivity<NoteViewState.Data?, NoteViewState>() {
     override val viewModel: NoteViewModel by lazy {
         ViewModelProviders.of(this).get(NoteViewModel::class.java)
     }
+    override val layoutRes: Int
+        get() = R.layout.activity_note
     val textWatcher: TextWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
             saveNote()
+            Timber.e(message = { "afterTextChanged" })
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -88,6 +81,19 @@ class NoteActivity : BaseActivity<NoteViewState.Data?, NoteViewState>() {
         }
     }
 
+    override fun renderData(data: NoteViewState.Data) {
+        if (data.isDeleted) {
+            finish()
+            return
+        }
+        this.note = data.note
+        supportActionBar?.title = note?.title ?: getString(R.string.new_note_title)
+        initNote()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?) =
+        MenuInflater(this).inflate(R.menu.note_options_menu, menu).let { true }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
         when (item?.itemId) {
             android.R.id.home -> super.onBackPressed().let { true }
@@ -105,6 +111,7 @@ class NoteActivity : BaseActivity<NoteViewState.Data?, NoteViewState>() {
 
     private fun initNote() {
         note?.let { note ->
+            removeTextListener()
             note_activity_title_edit_text.setText(note.title)
             note_activity_content_edit_text.setText(note.text)
             val color = when (note.color) {
@@ -118,19 +125,31 @@ class NoteActivity : BaseActivity<NoteViewState.Data?, NoteViewState>() {
             }
             note_activity_toolbar.setBackgroundColor(color)
         }
+        setTextListener()
+    }
+
+    private fun setTextListener() {
         note_activity_content_edit_text.addTextChangedListener(textWatcher)
         note_activity_title_edit_text.addTextChangedListener(textWatcher)
     }
 
+    private fun removeTextListener() {
+        note_activity_content_edit_text.removeTextChangedListener(textWatcher)
+        note_activity_title_edit_text.removeTextChangedListener(textWatcher)
+    }
+
 
     private fun saveNote() {
+        Timber.e(message = { "saveNote" })
         if (note_activity_content_edit_text.text == null || note_activity_title_edit_text.text!!.length < 3) return
+        removeTextListener()
         note = note?.copy(
             title = note_activity_title_edit_text.text.toString(),
             text = note_activity_content_edit_text.text.toString(),
             color = note_color_spinner.selectedItem.toString().toColor()
         ) ?: createNewNote()
         note?.let { viewModel.saveNote(it) }
+        setTextListener()
     }
 
 
