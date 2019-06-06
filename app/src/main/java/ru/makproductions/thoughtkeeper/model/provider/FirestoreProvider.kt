@@ -74,5 +74,11 @@ class FirestoreProvider : RemoteDataProvider {
 
     }
 
-
+    override fun deleteNote(id: String) = MutableLiveData<NoteResult>().apply {
+        getUsersNotesCollection().document(id).delete().addOnSuccessListener {
+            value = NoteResult.NoteLoadSuccess(null)
+        }.addOnFailureListener {
+            value = NoteResult.NoteLoadError(it)
+        }
+    }
 }

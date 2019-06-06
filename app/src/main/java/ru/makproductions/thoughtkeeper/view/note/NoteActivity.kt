@@ -6,11 +6,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_note.*
+import org.jetbrains.anko.alert
 import ru.makproductions.thoughtkeeper.R
 import ru.makproductions.thoughtkeeper.common.toColor
 import ru.makproductions.thoughtkeeper.common.toResource
@@ -21,15 +24,18 @@ import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewModel
 import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewState
 import java.util.*
 
-class NoteActivity : BaseActivity<Note?, NoteViewState>() {
+class NoteActivity : BaseActivity<NoteViewState.Data?, NoteViewState>() {
     override val layoutRes: Int
         get() = R.layout.activity_note
 
-    override fun renderData(data: Note?) {
-        this.note = data
+    override fun renderData(data: NoteViewState.Data?) {
+        this.note = data?.note
         supportActionBar?.title = note?.title ?: getString(R.string.new_note_title)
         initNote()
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?) =
+        MenuInflater(this).inflate(R.menu.note_options_menu, menu).let { true }
 
     companion object {
 
@@ -84,12 +90,18 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
         when (item?.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                true
-            }
+            android.R.id.home -> super.onBackPressed().let { true }
+            R.id.note_delete_button -> deleteNote().let { true }
             else -> super.onOptionsItemSelected(item)
         }
+
+    private fun deleteNote() {
+        alert {
+            messageResource = R.string.delete_note_alert_message
+            negativeButton(R.string.delete_note_cancel) { dialog -> dialog.dismiss() }
+            positiveButton(R.string.delete_note_ok) { viewModel.deleteNote() }
+        }.show()
+    }
 
     private fun initNote() {
         note?.let { note ->

@@ -10,18 +10,18 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.alert
 import ru.makproductions.thoughtkeeper.R
 import ru.makproductions.thoughtkeeper.model.entity.Note
 import ru.makproductions.thoughtkeeper.view.base.BaseActivity
-import ru.makproductions.thoughtkeeper.view.logout.LogoutDialog
 import ru.makproductions.thoughtkeeper.view.note.NoteActivity
 import ru.makproductions.thoughtkeeper.view.note.adapter.NotesAdapter
 import ru.makproductions.thoughtkeeper.view.splash.SplashActivity
 import ru.makproductions.thoughtkeeper.viewmodel.main.MainViewModel
 import ru.makproductions.thoughtkeeper.viewmodel.main.MainViewState
 
-class MainActivity : BaseActivity<List<Note>?, MainViewState>(), LogoutDialog.LogoutListener {
-    override fun onLogout() {
+class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
+    fun onLogout() {
         AuthUI.getInstance()
             .signOut(this)
             .addOnCompleteListener(
@@ -61,8 +61,12 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>(), LogoutDialog.Lo
     }
 
     private fun showLogoutDialog() {
-        supportFragmentManager.findFragmentByTag(LogoutDialog.TAG)
-            ?: LogoutDialog.getInstance().show(supportFragmentManager, LogoutDialog.TAG)
+        alert {
+            titleResource = R.string.logout_button_title
+            messageResource = R.string.logout_message
+            positiveButton("Yes") { onLogout() }
+            negativeButton("No") { dialog -> dialog.dismiss() }
+        }
     }
 
     override fun renderData(data: List<Note>?) {

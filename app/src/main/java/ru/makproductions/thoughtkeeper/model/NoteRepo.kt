@@ -11,4 +11,5 @@ object NoteRepo {
     fun saveNote(note: Note) = remoteProvider.saveNote(note)
     fun getNoteById(id: String) = remoteProvider.getNoteById(id)
     fun getCurrentUser() = remoteProvider.getCurrentUser()
+    fun deleteNote(id: String) = remoteProvider.deleteNote(id)
 }
