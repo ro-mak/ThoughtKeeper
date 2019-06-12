@@ -1,7 +1,7 @@
 package ru.makproductions.thoughtkeeper.view.splash
 
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Handler
+import org.koin.android.viewmodel.ext.android.viewModel
 import ru.makproductions.thoughtkeeper.view.base.BaseActivity
 import ru.makproductions.thoughtkeeper.view.main.MainActivity
 import ru.makproductions.thoughtkeeper.viewmodel.splash.SplashViewModel
@@ -13,9 +13,7 @@ class SplashActivity : BaseActivity<Boolean?, SplashViewState>() {
         private const val START_DELAY = 500L
     }
 
-    override val viewModel: SplashViewModel by lazy {
-        ViewModelProviders.of(this).get(SplashViewModel::class.java)
-    }
+    override val viewModel: SplashViewModel by viewModel()
     override val layoutRes: Int? = null
 
     override fun onResume() {

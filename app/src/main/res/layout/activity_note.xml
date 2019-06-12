@@ -2,7 +2,6 @@
 <android.support.design.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
@@ -14,20 +13,24 @@
             android:layout_height="wrap_content"
             >
 
-        <android.support.v7.widget.Toolbar
-                android:id="@+id/note_activity_toolbar"
+        <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 >
 
-            <Spinner
-                    android:id="@+id/note_color_spinner"
+            <ru.geekbrains.gb_kotlin.ui.customview.ColorPickerView
+                    android:id="@+id/activity_note_color_picker"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    tools:text="Text"
+                    android:layout_height="?attr/actionBarSize"
                     />
-        </android.support.v7.widget.Toolbar>
+
+        </HorizontalScrollView>
+
+        <android.support.v7.widget.Toolbar
+                android:id="@+id/note_activity_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
 
     </android.support.design.widget.AppBarLayout>
 

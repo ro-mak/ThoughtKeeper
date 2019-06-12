@@ -7,7 +7,7 @@ import ru.makproductions.thoughtkeeper.model.provider.NoteResult
 import ru.makproductions.thoughtkeeper.view.base.BaseViewModel
 import java.util.*
 
-class MainViewModel : BaseViewModel<List<Note>?, MainViewState>() {
+class MainViewModel(noteRepo: NoteRepo) : BaseViewModel<List<Note>?, MainViewState>() {
     private val notesObserver = object : Observer<NoteResult> {
         override fun onChanged(t: NoteResult?) {
             if (t == null) return
@@ -22,7 +22,7 @@ class MainViewModel : BaseViewModel<List<Note>?, MainViewState>() {
         }
     }
 
-    private val repositoryNotes = NoteRepo.getNotes()
+    private val repositoryNotes = noteRepo.getNotes()
 
     init {
         viewStateLiveData.value = MainViewState()

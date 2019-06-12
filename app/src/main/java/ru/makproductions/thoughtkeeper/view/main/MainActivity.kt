@@ -1,6 +1,5 @@
 package ru.makproductions.thoughtkeeper.view.main
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +10,7 @@ import android.view.MenuItem
 import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.alert
+import org.koin.android.viewmodel.ext.android.viewModel
 import ru.makproductions.thoughtkeeper.R
 import ru.makproductions.thoughtkeeper.model.entity.Note
 import ru.makproductions.thoughtkeeper.view.base.BaseActivity
@@ -38,9 +38,7 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
         }
     }
 
-    override val viewModel: MainViewModel by lazy {
-        ViewModelProviders.of(this).get(MainViewModel::class.java)
-    }
+    override val viewModel: MainViewModel by viewModel()
     lateinit var adapter: NotesAdapter
     override val layoutRes: Int
         get() = R.layout.activity_main

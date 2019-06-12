@@ -9,16 +9,15 @@ import ru.makproductions.thoughtkeeper.model.entity.User
 import ru.makproductions.thoughtkeeper.model.errors.NoAuthException
 import timber.log.Timber
 
-class FirestoreProvider : RemoteDataProvider {
+class FirestoreProvider(private val firebaseAuth: FirebaseAuth, private val store: FirebaseFirestore) :
+    RemoteDataProvider {
     companion object {
         private const val USERS_COLLECTION = "users"
         private const val NOTES_COLLECTION = "notes"
     }
-
-    private val store by lazy { FirebaseFirestore.getInstance() }
     private val notesReference by lazy { store.collection(NOTES_COLLECTION) }
     private val currentUser
-        get() = FirebaseAuth.getInstance().currentUser
+        get() = firebaseAuth.currentUser
 
 
     override fun getCurrentUser(): LiveData<User?> = MutableLiveData<User?>().apply {

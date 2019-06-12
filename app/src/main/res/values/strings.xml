@@ -12,6 +12,7 @@
     <string name="delete_note_cancel">Cancel</string>
     <string name="delete_note_ok">Ok</string>
     <string name="logout_message">Are you sure you want to leave?</string>
+    <string name="pick_a_color_title">Pick a color</string>
     <string-array name="colors">
         <item>RED</item>
         <item>WHITE</item>

@@ -1,6 +1,5 @@
 package ru.makproductions.thoughtkeeper.view.note
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -9,14 +8,11 @@ import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import com.github.ajalt.timberkt.Timber
 import kotlinx.android.synthetic.main.activity_note.*
 import org.jetbrains.anko.alert
+import org.koin.android.viewmodel.ext.android.viewModel
 import ru.makproductions.thoughtkeeper.R
-import ru.makproductions.thoughtkeeper.common.toColor
 import ru.makproductions.thoughtkeeper.common.toResource
 import ru.makproductions.thoughtkeeper.model.entity.Color
 import ru.makproductions.thoughtkeeper.model.entity.Note
@@ -45,9 +41,7 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
 
     private var noteId: String? = null
     private var note: Note? = null
-    override val viewModel: NoteViewModel by lazy {
-        ViewModelProviders.of(this).get(NoteViewModel::class.java)
-    }
+    override val viewModel: NoteViewModel by viewModel()
     override val layoutRes: Int
         get() = R.layout.activity_note
     val textWatcher: TextWatcher = object : TextWatcher {
@@ -69,16 +63,6 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
             ?: let {
                 supportActionBar?.title = getString(R.string.new_note_title)
             }
-        note_color_spinner.adapter =
-            ArrayAdapter<String>(this, R.layout.color_spinner_item, resources.getStringArray(R.array.colors))
-        note_color_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                note_activity_toolbar.setBackgroundColor(note_color_spinner.adapter.getItem(position).toString().toColor().toResource())
-                saveNote()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-        }
     }
 
     override fun renderData(data: NoteViewState.Data) {
@@ -97,9 +81,18 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
         when (item?.itemId) {
             android.R.id.home -> super.onBackPressed().let { true }
+            R.id.note_color_picker -> togglePalette().let { true }
             R.id.note_delete_button -> deleteNote().let { true }
             else -> super.onOptionsItemSelected(item)
         }
+
+    private fun togglePalette() {
+        if (activity_note_color_picker.isOpen) {
+            activity_note_color_picker.close()
+        } else {
+            activity_note_color_picker.open()
+        }
+    }
 
     private fun deleteNote() {
         alert {
@@ -109,21 +102,21 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
         }.show()
     }
 
+    private var color: Color = Color.WHITE
+
     private fun initNote() {
         note?.let { note ->
             removeTextListener()
             note_activity_title_edit_text.setText(note.title)
             note_activity_content_edit_text.setText(note.text)
-            val color = when (note.color) {
-                Color.WHITE -> R.color.white
-                Color.RED -> R.color.red
-                Color.GREEN -> R.color.green
-                Color.BLUE -> R.color.blue
-                Color.PINK -> R.color.pink
-                Color.VIOLET -> R.color.violet
-                Color.YELLOW -> R.color.yellow
+            note_activity_content_edit_text.setSelection(note_activity_content_edit_text.text?.length ?: 0)
+            note_activity_title_edit_text.setSelection(note_activity_title_edit_text.text?.length ?: 0)
+            color = note.color
+            activity_note_color_picker.onColorClickListener = {
+                color = it
+                note_activity_toolbar.setBackgroundColor(note.color.toResource())
+                saveNote()
             }
-            note_activity_toolbar.setBackgroundColor(color)
         }
         setTextListener()
     }
@@ -146,7 +139,7 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
         note = note?.copy(
             title = note_activity_title_edit_text.text.toString(),
             text = note_activity_content_edit_text.text.toString(),
-            color = note_color_spinner.selectedItem.toString().toColor()
+            color = color
         ) ?: createNewNote()
         note?.let { viewModel.saveNote(it) }
         setTextListener()

@@ -44,6 +44,9 @@ dependencies {
 
     implementation "org.jetbrains.anko:anko:0.10.8"
 
+    implementation 'org.koin:koin-android:1.0.1'
+    implementation 'org.koin:koin-android-viewmodel:1.0.1'
+
     implementation 'com.google.firebase:firebase-core:16.0.9'
     implementation 'com.google.firebase:firebase-firestore:19.0.1'
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
