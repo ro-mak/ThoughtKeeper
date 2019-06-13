@@ -66,4 +66,17 @@ class NoteViewModelTest {
         viewModel.deleteNote()
         verify(mockRepository, times(1)).deleteNote(any())
     }
+
+
+    @Test
+    fun `should return error when repository note is error`() {
+        var result: Throwable? = null
+        val testData = Throwable("error")
+        viewModel.getViewState().observeForever {
+            result = it?.error
+        }
+        viewModel.loadNote("1")
+        repositoryNote.value = NoteResult.NoteLoadError(testData)
+        assertEquals(testData, result)
+    }
 }
