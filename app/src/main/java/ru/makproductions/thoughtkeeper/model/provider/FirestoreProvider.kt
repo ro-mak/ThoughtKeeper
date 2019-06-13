@@ -15,6 +15,7 @@ class FirestoreProvider(private val firebaseAuth: FirebaseAuth, private val stor
         private const val USERS_COLLECTION = "users"
         private const val NOTES_COLLECTION = "notes"
     }
+
     private val notesReference by lazy { store.collection(NOTES_COLLECTION) }
     private val currentUser
         get() = firebaseAuth.currentUser
@@ -31,16 +32,25 @@ class FirestoreProvider(private val firebaseAuth: FirebaseAuth, private val stor
     } ?: throw NoAuthException()
 
     override fun subscribeToAllNotes() = MutableLiveData<NoteResult>().apply {
+        Timber.d("subscribeToAllNotes")
         try {
             getUsersNotesCollection().addSnapshotListener { snapshot, e ->
-                value = e?.let { throw it } ?: snapshot?.let {
-                    val notes = it.documents.map { it.toObject(Note::class.java) }
-                    NoteResult.NoteLoadSuccess(notes)
+                try {
+                    Timber.d("subscribeToAllNotes inside")
+                    value = e?.let {
+                        Timber.d("subscribeToAllNotes throwing =")
+                        throw it
+                    } ?: snapshot?.let {
+                        val notes = it.documents.map { it.toObject(Note::class.java) }
+                        NoteResult.NoteLoadSuccess(notes)
+                    }
+                } catch (t: Throwable) {
+                    Timber.d("catch")
+                    value = NoteResult.NoteLoadError(e)
                 }
             }
         } catch (e: Exception) {
             value = NoteResult.NoteLoadError(e)
-            Timber.e(e)
         }
 
     }
