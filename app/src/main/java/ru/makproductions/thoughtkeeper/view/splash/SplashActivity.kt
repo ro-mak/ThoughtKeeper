@@ -5,9 +5,8 @@ import org.koin.android.viewmodel.ext.android.viewModel
 import ru.makproductions.thoughtkeeper.view.base.BaseActivity
 import ru.makproductions.thoughtkeeper.view.main.MainActivity
 import ru.makproductions.thoughtkeeper.viewmodel.splash.SplashViewModel
-import ru.makproductions.thoughtkeeper.viewmodel.splash.SplashViewState
 
-class SplashActivity : BaseActivity<Boolean?, SplashViewState>() {
+class SplashActivity : BaseActivity<Boolean?>() {
 
     companion object {
         private const val START_DELAY = 500L

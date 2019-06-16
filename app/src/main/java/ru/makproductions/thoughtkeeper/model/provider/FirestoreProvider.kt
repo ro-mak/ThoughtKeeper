@@ -1,13 +1,16 @@
 package ru.makproductions.thoughtkeeper.model.provider
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.channels.Channel
 import ru.makproductions.thoughtkeeper.model.entity.Note
 import ru.makproductions.thoughtkeeper.model.entity.User
 import ru.makproductions.thoughtkeeper.model.errors.NoAuthException
 import timber.log.Timber
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class FirestoreProvider(private val firebaseAuth: FirebaseAuth, private val store: FirebaseFirestore) :
     RemoteDataProvider {
@@ -21,73 +24,77 @@ class FirestoreProvider(private val firebaseAuth: FirebaseAuth, private val stor
         get() = firebaseAuth.currentUser
 
 
-    override fun getCurrentUser(): LiveData<User?> = MutableLiveData<User?>().apply {
-        value = currentUser?.let {
+    override suspend fun getCurrentUser(): User? = suspendCoroutine { continuation ->
+        continuation.resume(currentUser?.let {
             User(it.displayName ?: "", it.email ?: "")
-        }
+        })
     }
 
     private fun getUsersNotesCollection() = currentUser?.let {
         store.collection(USERS_COLLECTION).document(it.uid).collection(NOTES_COLLECTION)
     } ?: throw NoAuthException()
 
-    override fun subscribeToAllNotes() = MutableLiveData<NoteResult>().apply {
+    override fun subscribeToAllNotes() = Channel<NoteResult>(Channel.CONFLATED).apply {
+        var registration: ListenerRegistration? = null
         Timber.d("subscribeToAllNotes")
         try {
-            getUsersNotesCollection().addSnapshotListener { snapshot, e ->
+            registration = getUsersNotesCollection().addSnapshotListener { snapshot, e ->
                 try {
                     Timber.d("subscribeToAllNotes inside")
-                    value = e?.let {
+                    val value = e?.let {
                         Timber.d("subscribeToAllNotes throwing =")
                         throw it
                     } ?: snapshot?.let {
                         val notes = it.documents.map { it.toObject(Note::class.java) }
                         NoteResult.NoteLoadSuccess(notes)
                     }
+                    value?.let { offer(it) }
                 } catch (t: Throwable) {
                     Timber.d("catch")
-                    value = NoteResult.NoteLoadError(e)
+                    offer(NoteResult.NoteLoadError(t))
                 }
             }
         } catch (e: Exception) {
-            value = NoteResult.NoteLoadError(e)
+            offer(NoteResult.NoteLoadError(e))
         }
-
+        invokeOnClose { registration?.remove() }
     }
 
-    override fun getNoteById(id: String) = MutableLiveData<NoteResult>().apply {
+    override suspend fun getNoteById(id: String): Note = suspendCoroutine { continuation ->
         try {
             getUsersNotesCollection().document(id).get().addOnSuccessListener { snapshot ->
-                value = NoteResult.NoteLoadSuccess(snapshot.toObject(Note::class.java))
-            }.addOnFailureListener { e -> value = NoteResult.NoteLoadError(e) }
+                continuation.resume(snapshot.toObject(Note::class.java)!!)
+            }.addOnFailureListener { e -> continuation.resumeWithException(e) }
         } catch (e: Exception) {
-            value = NoteResult.NoteLoadError(e)
+            continuation.resumeWithException(e)
             Timber.e(e)
         }
 
     }
 
-    override fun saveNote(note: Note) = MutableLiveData<NoteResult>().apply {
+    override suspend fun saveNote(note: Note): Note = suspendCoroutine { continuation ->
         try {
-            getUsersNotesCollection().document(note.id).set(note).addOnSuccessListener {
+            getUsersNotesCollection().document(note.id)
+                .set(note)
+                .addOnSuccessListener {
                 Timber.e("Note is saved")
-                value = NoteResult.NoteLoadSuccess(note)
+                    continuation.resume(note)
             }.addOnFailureListener {
                 Timber.e("Error saving note $note, message: ${it.message}")
-                value = NoteResult.NoteLoadError(it)
+                    continuation.resumeWithException(it)
             }
         } catch (e: Exception) {
-            value = NoteResult.NoteLoadError(e)
+            continuation.resumeWithException(e)
             Timber.e(e)
         }
 
     }
 
-    override fun deleteNote(id: String) = MutableLiveData<NoteResult>().apply {
+    override suspend fun deleteNote(id: String): Unit = suspendCoroutine { continuation ->
         getUsersNotesCollection().document(id).delete().addOnSuccessListener {
-            value = NoteResult.NoteLoadSuccess(null)
+            continuation.resume(Unit)
         }.addOnFailureListener {
-            value = NoteResult.NoteLoadError(it)
+            continuation.resumeWithException(it)
         }
     }
 }

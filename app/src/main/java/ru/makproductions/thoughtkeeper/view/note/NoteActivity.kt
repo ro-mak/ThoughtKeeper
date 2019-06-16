@@ -17,11 +17,11 @@ import ru.makproductions.thoughtkeeper.common.toResource
 import ru.makproductions.thoughtkeeper.model.entity.Color
 import ru.makproductions.thoughtkeeper.model.entity.Note
 import ru.makproductions.thoughtkeeper.view.base.BaseActivity
+import ru.makproductions.thoughtkeeper.viewmodel.note.NoteData
 import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewModel
-import ru.makproductions.thoughtkeeper.viewmodel.note.NoteViewState
 import java.util.*
 
-class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
+class NoteActivity : BaseActivity<NoteData>() {
 
     companion object {
 
@@ -65,7 +65,7 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
             }
     }
 
-    override fun renderData(data: NoteViewState.Data) {
+    override fun renderData(data: NoteData) {
         if (data.isDeleted) {
             finish()
             return

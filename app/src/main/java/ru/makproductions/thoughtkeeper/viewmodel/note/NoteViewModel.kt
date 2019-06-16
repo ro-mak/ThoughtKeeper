@@ -1,68 +1,59 @@
 package ru.makproductions.thoughtkeeper.viewmodel.note
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
+import kotlinx.coroutines.launch
 import ru.makproductions.thoughtkeeper.model.NoteRepo
 import ru.makproductions.thoughtkeeper.model.entity.Note
 import ru.makproductions.thoughtkeeper.model.provider.NoteResult
 import ru.makproductions.thoughtkeeper.view.base.BaseViewModel
 import timber.log.Timber
 
-class NoteViewModel(private val noteRepo: NoteRepo) : BaseViewModel<NoteViewState.Data, NoteViewState>() {
+class NoteViewModel(private val noteRepo: NoteRepo) : BaseViewModel<NoteData>() {
 
-    private val noteObserver = object : Observer<NoteResult> {
-        override fun onChanged(t: NoteResult?) {
-            if (t == null) return
-            when (t) {
-                is NoteResult.NoteLoadSuccess<*> -> {
-                    viewStateLiveData.value = NoteViewState(NoteViewState.Data(note = t.data as? Note))
-                }
-                is NoteResult.NoteLoadError -> {
-                    viewStateLiveData.value = NoteViewState(error = t.throwable)
-                }
-            }
-        }
-    }
 
     init {
-        viewStateLiveData.value = NoteViewState()
+        viewStateLiveData.value = NoteData()
     }
 
     private val pendingNote: Note?
-        get() = viewStateLiveData.value?.data?.note
+        get() = getViewState().poll()?.note
+
     fun saveNote(note: Note) {
-        viewStateLiveData.value = NoteViewState(NoteViewState.Data(note = note))
+        setData(NoteData(note = note))
     }
 
     private var repositoryNote: LiveData<NoteResult>? = null
 
     fun loadNote(noteId: String) {
-        repositoryNote = noteRepo.getNoteById(noteId)
-        repositoryNote!!.observeForever(noteObserver)
+        launch {
+            try {
+                noteRepo.getNoteById(noteId).let {
+                    setData(NoteData(note = it))
+                }
+            } catch (e: Throwable) {
+                setError(e)
+            }
+        }
     }
 
     override fun onCleared() {
         Timber.e("OnCleared")
-        pendingNote?.let { note -> noteRepo.saveNote(note) }
-        repositoryNote?.let { it.removeObserver(noteObserver) }
-
+        launch {
+            pendingNote?.let { note -> noteRepo.saveNote(note) }
+            super.onCleared()
+        }
     }
 
     fun deleteNote() {
-        pendingNote?.let {
-            noteRepo.deleteNote(it.id)
-                .observeForever { result ->
-                    result?.let {
-                        viewStateLiveData.value = when (result) {
-                            is NoteResult.NoteLoadSuccess<*> -> {
-                                NoteViewState(NoteViewState.Data(isDeleted = true))
-                            }
-                            is NoteResult.NoteLoadError -> {
-                                NoteViewState(error = result.throwable)
-                            }
-                        }
-                    }
-                }
+        launch {
+            try {
+                pendingNote?.let { noteRepo.deleteNote(it.id) }
+                setData(NoteData(isDeleted = true))
+
+            } catch (e: Throwable) {
+                setError(e)
+            }
         }
+
     }
 }

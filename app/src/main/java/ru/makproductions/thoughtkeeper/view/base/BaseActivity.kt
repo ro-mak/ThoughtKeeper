@@ -1,36 +1,61 @@
 package ru.makproductions.thoughtkeeper.view.base
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.firebase.ui.auth.AuthUI
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.consumeEach
 import ru.makproductions.thoughtkeeper.R
 import ru.makproductions.thoughtkeeper.model.errors.NoAuthException
 import timber.log.Timber
+import kotlin.coroutines.CoroutineContext
 
-abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
+abstract class BaseActivity<T> : AppCompatActivity(), CoroutineScope {
+    override val coroutineContext: CoroutineContext by lazy {
+        Dispatchers.Main + Job()
+    }
+
+    private lateinit var dataJob: Job
+    private lateinit var errorJob: Job
 
     companion object {
         private const val AUTH_REQUEST_CODE = 9182
     }
-    abstract val viewModel: BaseViewModel<T, S>
+
+    abstract val viewModel: BaseViewModel<T>
     abstract val layoutRes: Int?
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         layoutRes?.let { setContentView(it) }
-        viewModel.getViewState().observe(this, object : Observer<S> {
-            override fun onChanged(t: S?) {
-                if (t == null) return
-                if (t.error != null) {
-                    renderError(t.error)
-                    return
-                }
-                renderData(t.data)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dataJob = launch {
+            viewModel.getViewState().consumeEach {
+                renderData(it)
             }
-        })
+        }
+
+        errorJob = launch {
+            viewModel.getErrorChannel().consumeEach {
+                renderError(it)
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        dataJob.cancel()
+        errorJob.cancel()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext.cancel()
     }
 
     protected fun renderError(error: Throwable?) {

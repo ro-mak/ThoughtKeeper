@@ -48,7 +48,7 @@ dependencies {
     implementation 'org.koin:koin-android-viewmodel:1.0.1'
 
     implementation 'com.google.firebase:firebase-core:16.0.9'
-    implementation 'com.google.firebase:firebase-firestore:19.0.1'
+    implementation 'com.google.firebase:firebase-firestore:19.0.2'
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
     implementation 'com.google.firebase:firebase-auth:17.0.0'
 
@@ -62,5 +62,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.1'
 }
 apply plugin: 'com.google.gms.google-services'

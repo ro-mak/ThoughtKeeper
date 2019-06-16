@@ -18,9 +18,8 @@ import ru.makproductions.thoughtkeeper.view.note.NoteActivity
 import ru.makproductions.thoughtkeeper.view.note.adapter.NotesAdapter
 import ru.makproductions.thoughtkeeper.view.splash.SplashActivity
 import ru.makproductions.thoughtkeeper.viewmodel.main.MainViewModel
-import ru.makproductions.thoughtkeeper.viewmodel.main.MainViewState
 
-class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
+class MainActivity : BaseActivity<List<Note>?>() {
     fun onLogout() {
         AuthUI.getInstance()
             .signOut(this)
@@ -49,7 +48,7 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
         notes_recycler_view.layoutManager = GridLayoutManager(this, 2)
         adapter = NotesAdapter { NoteActivity.start(this, it.id) }
         notes_recycler_view.adapter = adapter
-        add_note_fab.setOnClickListener { viewModel.addNote() }
+        add_note_fab.setOnClickListener { NoteActivity.start(this) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?) = MenuInflater(this).inflate(R.menu.options_menu, menu).let { true }
