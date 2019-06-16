@@ -19,7 +19,6 @@ class FirestoreProvider(private val firebaseAuth: FirebaseAuth, private val stor
         private const val NOTES_COLLECTION = "notes"
     }
 
-    private val notesReference by lazy { store.collection(NOTES_COLLECTION) }
     private val currentUser
         get() = firebaseAuth.currentUser
 
@@ -61,9 +60,13 @@ class FirestoreProvider(private val firebaseAuth: FirebaseAuth, private val stor
     }
 
     override suspend fun getNoteById(id: String): Note = suspendCoroutine { continuation ->
+        Timber.e("Load note by id")
         try {
             getUsersNotesCollection().document(id).get().addOnSuccessListener { snapshot ->
-                continuation.resume(snapshot.toObject(Note::class.java)!!)
+                snapshot.toObject(Note::class.java)?.let {
+                    continuation.resume(it)
+                } ?: Timber.e("getNoteById null")
+
             }.addOnFailureListener { e -> continuation.resumeWithException(e) }
         } catch (e: Exception) {
             continuation.resumeWithException(e)
@@ -73,16 +76,17 @@ class FirestoreProvider(private val firebaseAuth: FirebaseAuth, private val stor
     }
 
     override suspend fun saveNote(note: Note): Note = suspendCoroutine { continuation ->
+        Timber.e("Trying to save")
         try {
             getUsersNotesCollection().document(note.id)
                 .set(note)
                 .addOnSuccessListener {
-                Timber.e("Note is saved")
+                    Timber.e("Note is saved")
                     continuation.resume(note)
-            }.addOnFailureListener {
-                Timber.e("Error saving note $note, message: ${it.message}")
+                }.addOnFailureListener {
+                    Timber.e("Error saving note $note, message: ${it.message}")
                     continuation.resumeWithException(it)
-            }
+                }
         } catch (e: Exception) {
             continuation.resumeWithException(e)
             Timber.e(e)

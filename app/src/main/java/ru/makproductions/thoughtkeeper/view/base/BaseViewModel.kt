@@ -1,6 +1,5 @@
 package ru.makproductions.thoughtkeeper.view.base
 
-import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
@@ -16,7 +15,6 @@ open class BaseViewModel<T> : ViewModel(), CoroutineScope {
     private val viewStateChannel = BroadcastChannel<T>(Channel.CONFLATED)
     private val errorChannel = Channel<Throwable>()
 
-    open val viewStateLiveData = MutableLiveData<T>()
     open fun getViewState(): ReceiveChannel<T> = viewStateChannel.openSubscription()
     open fun getErrorChannel(): ReceiveChannel<Throwable> = errorChannel
 

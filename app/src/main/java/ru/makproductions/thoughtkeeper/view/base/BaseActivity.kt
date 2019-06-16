@@ -35,7 +35,10 @@ abstract class BaseActivity<T> : AppCompatActivity(), CoroutineScope {
     override fun onStart() {
         super.onStart()
         dataJob = launch {
+            Timber.e("Data Job Started")
+            Timber.e("viewmodel = " + viewModel)
             viewModel.getViewState().consumeEach {
+                Timber.e("Consuming = " + it)
                 renderData(it)
             }
         }

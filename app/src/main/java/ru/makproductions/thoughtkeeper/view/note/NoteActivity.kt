@@ -55,6 +55,7 @@ class NoteActivity : BaseActivity<NoteData>() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Timber.e(message = { "OnCreate" })
         super.onCreate(savedInstanceState)
         setSupportActionBar(note_activity_toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -66,6 +67,7 @@ class NoteActivity : BaseActivity<NoteData>() {
     }
 
     override fun renderData(data: NoteData) {
+        Timber.e(message = { "Render Data" })
         if (data.isDeleted) {
             finish()
             return
@@ -105,6 +107,7 @@ class NoteActivity : BaseActivity<NoteData>() {
     private var color: Color = Color.WHITE
 
     private fun initNote() {
+        Timber.e(message = { "initNote" })
         note?.let { note ->
             removeTextListener()
             note_activity_title_edit_text.setText(note.title)

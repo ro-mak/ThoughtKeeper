@@ -48,7 +48,7 @@ class MainActivity : BaseActivity<List<Note>?>() {
         notes_recycler_view.layoutManager = GridLayoutManager(this, 2)
         adapter = NotesAdapter { NoteActivity.start(this, it.id) }
         notes_recycler_view.adapter = adapter
-        add_note_fab.setOnClickListener { NoteActivity.start(this) }
+        add_note_fab.setOnClickListener { viewModel.addNote() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?) = MenuInflater(this).inflate(R.menu.options_menu, menu).let { true }
